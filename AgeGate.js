@@ -9,6 +9,9 @@ class AgeGate
     constructor(baseUrl = '') {
         this.title = 'The AgeGate Page';
         this.baseUrl = baseUrl;
+        this.siteLogo = null;
+        this.testIp = null;
+        this.startFrom = '2019-07-15T12:00';
     }
     
     async run (request, response, next) {
@@ -25,6 +28,10 @@ class AgeGate
         return next()
     }
     _run() {
+        if (!this.canStart()) {
+            return;
+        }
+        
         // postback request
         if (typeof this.request.query.agecheck != 'undefined' ) {
             return this.callbackVerify();
@@ -40,6 +47,14 @@ class AgeGate
         }
     }
     
+    canStart()
+    {
+        let start = new Date(this.startFrom);
+        let now = new Date();
+        
+        return start <= now;
+    }
+    
     setTitle(title) {
         if (title) {
             this.title = title;
@@ -49,6 +64,19 @@ class AgeGate
     setLogo(logo) {
         if (logo) {            
             this.siteLogo = logo;
+        }
+    }
+    
+    setTestIp(testIp) {
+        if (testIp) {
+            this.testIp = testIp;
+        }
+    }
+    
+    setStartFrom(startFrom)
+    {
+        if (startFrom) {
+            this.startFrom = startFrom;
         }
     }
     
