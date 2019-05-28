@@ -10,6 +10,21 @@ class AgeGate
         this.title = 'The AgeGate Page';
         this.baseUrl = baseUrl;
         this.siteLogo = null;
+        
+        this.siteName = null;
+        this.customText = null;
+        this.customLocation = 'top';
+            
+        this.backgroundColor = null;
+        this.textColor = null;
+            
+        this.removeReference = false;
+        this.removeVisiting = false;
+            
+        this.testMode = false;
+        this.testAnyIp = false;
+        this.testIp = null;
+        
         this.testIp = null;
         this.startFrom = '2019-07-15T12:00';
     }
@@ -64,6 +79,55 @@ class AgeGate
     setLogo(logo) {
         if (logo) {            
             this.siteLogo = logo;
+        }
+    }
+    
+    setSiteName(siteName)
+    {
+        if (siteName) {
+            this.siteName = siteName;
+        }
+    }
+    
+    setCustomText(customText)
+    {
+        if (customText) {
+            this.customText = customText;
+        }
+    }
+    
+    setCustomLocation(customLocation)
+    {
+        if (customLocation) {
+            this.customLocation = customLocation;
+        }
+    }
+    
+    setBackgroundColor(backgroundColor)
+    {
+        if (backgroundColor) {
+            this.backgroundColor = backgroundColor;
+        }
+    }
+    
+    setTextColor(textColor)
+    {
+        if (textColor) {
+            this.textColor = textColor;
+        }
+    }
+    
+    setRemoveReference(removeReference)
+    {
+        if (removeReference) {
+            this.removeReference = removeReference;
+        }
+    }
+    
+    setRemoveVisiting(removeVisiting)
+    {
+        if (removeVisiting) {
+            this.removeVisiting = removeVisiting;
         }
     }
     
@@ -141,15 +205,31 @@ class AgeGate
         }
         
         let deepurl = Utils.makeUrl(this.baseUrl, this.request);
-        let qrCode = await QRCode.toDataURL(deepurl);
+        let qrCode = await QRCode.toBuffer(deepurl, {
+            width: 300,
+            height: 300,
+            errorCorrectionLevel: 'Q',
+        });
+        qrCode = Utils.insertLogo(qrCode);
         
         return this.renderTemplate({
-            'plus18Img': Utils.imgToBase64(path.join(__dirname + '/assets/logo.png')),
-            'deepurl': deepurl, 
-            'qrCode': qrCode,
             'title': this.title,
             'siteLogo': this.siteLogo,
             'showLogo': this.siteLogo ? 'display: block' : 'display: none;',
+            
+            'siteName': this.siteName,
+            'customText': this.customText,
+            'customLocationTopShow': this.customLocation == 'top' ? 'display: block;' : 'display: none;',
+            'customLocationBottomShow': this.customLocation == 'bottom' ? 'display: block;' : 'display: none;',
+            
+            'backgroundColor': this.backgroundColor || 'rgb(247, 241, 241)',
+            'textColor': this.textColor || '#212529',
+            
+            'removeReference': this.removeReference ? 'none' : 'block',
+            'removeVisiting': this.removeVisiting ? 'none' : 'block',
+            
+            'deepurl': deepurl, 
+            'qrCode': qrCode,
         });
     }
     
@@ -158,7 +238,8 @@ class AgeGate
         let templateContent = fs.readFileSync(templateFile).toString();
         
         for (let key in data) {
-            templateContent = templateContent.replace(`%${key}%`, data[key]);
+            let value = data[key] || '';
+            templateContent = templateContent.replace(`%${key}%`, value);
         }
         
         return templateContent;

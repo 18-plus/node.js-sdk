@@ -1,6 +1,9 @@
 const ipranges = require('./GbIpData')
 const JWT = require('jwt-simple');
+
 const fs = require('fs');
+const path = require('path');
+const PNG = require('pngjs').PNG;
 
 class Utils
 {
@@ -61,6 +64,26 @@ class Utils
         let url = `${this.AgeCheckURL}?postback=${baseUrl}&url=${returnURL}`;
 
         return url;
+    }
+    
+    static insertLogo(qrCode) {
+        let qrCode_png = PNG.sync.read(qrCode);
+        let qrWidth = qrCode_png.width;
+        let qrHeight = qrCode_png.height;
+
+        let dst = new PNG({width: qrWidth, height: qrHeight});
+        
+        let emblem = fs.readFileSync(path.join(__dirname + '/assets/emblem.png'));
+        let emblem_png = PNG.sync.read(emblem);
+        let emblemWidth = emblem_png.width;
+        let emblemHeight = emblem_png.height;
+        
+        PNG.bitblt(qrCode_png, dst, 0, 0, qrWidth, qrHeight, 0, 0);
+        PNG.bitblt(emblem_png, dst, 0, 0, emblemWidth, emblemHeight, (qrWidth - emblemWidth) / 2, (qrHeight - emblemHeight) / 2);
+        
+        let buffer = PNG.sync.write(dst);
+        
+        return "data:image/png;base64," + buffer.toString('base64');
     }
     
     static imgToBase64(file) {
