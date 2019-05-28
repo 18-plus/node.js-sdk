@@ -57,7 +57,6 @@ class Utils
         
         baseUrl += '?jwt=' + encoded;
         baseUrl += '&agecheck=true';
-        console.log(baseUrl);
         baseUrl = encodeURIComponent(baseUrl);
         returnURL = encodeURIComponent(returnURL);
         
@@ -66,14 +65,18 @@ class Utils
         return url;
     }
     
-    static insertLogo(qrCode) {
+    static insertLogo(qrCode, siteLogo = '') {
         let qrCode_png = PNG.sync.read(qrCode);
         let qrWidth = qrCode_png.width;
         let qrHeight = qrCode_png.height;
 
         let dst = new PNG({width: qrWidth, height: qrHeight});
         
-        let emblem = fs.readFileSync(path.join(__dirname + '/assets/emblem.png'));
+        if (siteLogo) {
+            var emblem = fs.readFileSync(siteLogo);
+        } else {            
+            var emblem = fs.readFileSync(path.join(__dirname + '/assets/emblem.png'));
+        }
         let emblem_png = PNG.sync.read(emblem);
         let emblemWidth = emblem_png.width;
         let emblemHeight = emblem_png.height;

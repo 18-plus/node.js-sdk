@@ -10,6 +10,7 @@ class AgeGate
         this.title = 'The AgeGate Page';
         this.baseUrl = baseUrl;
         this.siteLogo = null;
+        this.siteQrLogo = null;
         
         this.siteName = null;
         this.customText = null;
@@ -79,6 +80,12 @@ class AgeGate
     setLogo(logo) {
         if (logo) {            
             this.siteLogo = logo;
+        }
+    }
+    
+    setQrLogo(logo) {
+        if (logo) {            
+            this.siteQrLogo = logo;
         }
     }
     
@@ -210,7 +217,7 @@ class AgeGate
             height: 300,
             errorCorrectionLevel: 'Q',
         });
-        qrCode = Utils.insertLogo(qrCode);
+        qrCode = Utils.insertLogo(qrCode, this.siteQrLogo);
         
         return this.renderTemplate({
             'title': this.title,
