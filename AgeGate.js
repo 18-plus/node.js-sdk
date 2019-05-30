@@ -3,6 +3,7 @@ const JWT = require('jwt-simple');
 const QRCode = require('qrcode');
 const fs = require('fs');
 const path = require('path');
+const CrawlerDetect = require('crawler-detect');
 
 class AgeGate
 {
@@ -65,6 +66,10 @@ class AgeGate
     
     canStart()
     {
+        if (CrawlerDetect.isCrawler(this.request.get('user-agent'))) {
+            return false;
+        }
+        
         let start = new Date(this.startFrom);
         let now = new Date();
         
