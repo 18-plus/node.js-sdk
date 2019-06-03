@@ -3,7 +3,7 @@ const JWT = require('jwt-simple');
 const QRCode = require('qrcode');
 const fs = require('fs');
 const path = require('path');
-const CrawlerDetect = require('crawler-detect');
+const CrawlerDetect = require('./CrawlerDetect');
 
 class AgeGate
 {
@@ -66,7 +66,9 @@ class AgeGate
     
     canStart()
     {
-        if (CrawlerDetect.isCrawler(this.request.get('user-agent'))) {
+        let detect = new CrawlerDetect();
+            detect.setExclusions(['PostmanRuntime\/[\d\.]*', 'Go-http-client\/[\d\.]*', 'AgeGate']);
+        if (detect.isCrawler(this.request.get('user-agent'))) {
             return false;
         }
         
