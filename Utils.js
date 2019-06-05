@@ -7,8 +7,11 @@ const PNG = require('pngjs').PNG;
 
 class Utils
 {
-    static get AgeCheckURL() {
-        return "https://deep.reallyme.net/agecheck";
+    static get AgeCheckURL1() {
+        return "https://applink.18plus.org/agecheck";
+    }
+    static get AgeCheckURL2() {
+        return "org18plus://agecheck";
     }
     static get JWT_PUB() {
         return 'LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUF6YjRtcjhqcHh3NXJSU2pqK1NEQQo2cG9GNlFmaXp4dEtUZlVWQTYwTG1XTXJQeS93MWF4KzBsb1lxWWRYT2lVRmhETWhSQ2JiQjVaTmhzcDFEbklnCm03NTdVMldIaXJhOVFQcUNXTmo4Ymo0L1dxN0FwT3hFT0ZQVWFLeTVZZlRjaWQxU3VLWHpZNDNWa21NYUdUYnUKOXFJTWRzcitHU2lTTmdzZlNEcVNIeG4wL0Z5aFFkZTcwbWZjMTh1V3h5ZGVXTm5hRkhjeUZpMWFsbWUyZGREZQpHSlRta043YkZUT2ZHZXM5RkdDZWZzckI3MDRMcE8wcHo2ZjhHNlhsVmZQb0IwY2liWno3SlpHU0g5bHB1RkVkCm5MM2RVRFdvL3BBNzR3REJsSncrVThZWkN3eG1jeFZLVWRwejV1ZUJOMGc1WnN0czhjQjV6Y2V2aHZHSUIzazMKOVFJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==';
@@ -48,20 +51,35 @@ class Utils
         return false;
     }
     
-    static makeUrl(baseUrl, req) {
-        let returnURL = (req.connection.encrypted ? 'https' : 'http') + '://' + req.headers.host;
+    static makeUrl(baseUrl, req, deep = false) {
+        let AgeCheckURL1 = this.AgeCheckURL1;
+        let AgeCheckURL2 = this.AgeCheckURL2;
         
         let buff = Buffer.from(Utils.JWT_PUB, 'base64');  
         let publicKey = buff.toString('ascii');
         let encoded = JWT.encode(req.sessionID, publicKey);
         
-        baseUrl += '?jwt=' + encoded;
-        baseUrl += '&agecheck=true';
-        baseUrl = encodeURIComponent(baseUrl);
-        returnURL = encodeURIComponent(returnURL);
+        let postback = baseUrl + '?jwt=' + encoded;
+            postback = encodeURIComponent(postback);
+            
+            
+        let ua = req.get('User-Agent') || '';
+        let type = 1;
         
-        let url = `${this.AgeCheckURL}?postback=${baseUrl}&url=${returnURL}`;
-
+        // detect deepurl for ios devices
+        if (deep) {
+            type = 2;
+            if ((ua.indexOf("iPhone") != -1 ) || (ua.indexOf("iPad") != -1 )) {
+                type = 1;
+            }
+        } else {
+            type = 1;
+        }
+        
+        deep = deep ? 'true' : 'false';
+        ua = encodeURIComponent(ua);
+        let url = eval('AgeCheckURL' + type) + `?postback=${postback}&deep=${deep}&agent=${ua}`;
+        
         return url;
     }
     

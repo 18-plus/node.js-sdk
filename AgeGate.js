@@ -50,7 +50,7 @@ class AgeGate
         }
         
         // postback request
-        if (typeof this.request.query.agecheck != 'undefined' ) {
+        if (typeof this.request.query.jwt != 'undefined' ) {
             return this.callbackVerify();
         }
         
@@ -218,13 +218,15 @@ class AgeGate
             this.request.session.ageVerified = false;
         }
         
-        let deepurl = Utils.makeUrl(this.baseUrl, this.request);
-        let qrCode = await QRCode.toBuffer(deepurl, {
+        let qrCodeUrl = Utils.makeUrl(this.baseUrl, this.request);
+        let qrCode = await QRCode.toBuffer(qrCodeUrl, {
             width: 300,
             height: 300,
-            errorCorrectionLevel: 'Q',
+            errorCorrectionLevel: 'H',
         });
         qrCode = Utils.insertLogo(qrCode, this.siteQrLogo);
+        
+        let deepurl = Utils.makeUrl(this.baseUrl, this.request, true);
         
         return this.renderTemplate({
             'title': this.title,
